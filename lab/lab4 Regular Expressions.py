@@ -47,4 +47,31 @@ Q3(text)
 
 # QUESTION: 4
 def Q4(text):
-    pass
+    rule = re.compile(r"<(.*?)>(.*)</\1>",re.I)
+    for tag,content in rule.findall(text):
+        print("PAIR [{}]: {}".format(tag,content))
+
+Q4(text)
+
+
+
+def load(PATH):
+    with open(PATH) as handle:
+        text = handle.read()
+    return text
+
+text = load(PATH)
+
+def Q4(text):
+    rule = re.compile(r"<(.*?)>(.*)</\1>",re.I)
+    for tag,content in rule.findall(text):
+        print("PAIR [{}]: {}".format(tag,content))
+
+
+Q4(text)
+rule = re.compile(r"<(.*?)>\n?(.*)\n?<(/\1)>",re.M)
+rule.findall(text)
+
+
+str = "The fat\ncat sat\non the mat."
+re.findall('(.at).?$',str,re.M)
