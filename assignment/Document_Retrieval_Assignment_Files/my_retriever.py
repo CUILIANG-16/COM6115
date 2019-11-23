@@ -8,19 +8,21 @@ class Retrieve:
 
     def VectorMode(self):
         mode = dict()
-        for docid in range(1,self._length()+1):
-            dd = 0
-            for term in self.index:
-                d = self.index[term].get(docid,0)
+        for docid in range(1,self.__getDoclength()+1): # number of all documents
+            dd = 0 # set mode to 0
+            for term in self.index: # all the term appear in all documents
+                d = self.index[term].get(docid,0)  # get frequency of the term
                 dd += d*d
             mode[docid] = pow(dd,1/2)
         return mode
 
-    def _length(self):
+    # get the total number of documents
+    def __getDoclength(self):
         max_index = 0
         for term in self.index:
-            present = max(self.index[term])
-            max_index = present if present > max_index else max_index
+            present_term = max(self.index[term])
+            max_index = present_term if present_term > max_index else max_index
+        print("Max index:",max_index)
         return max_index
 
     # Method performing retrieval for specified query
