@@ -28,9 +28,33 @@ class IndexLoader:
     def getIndex(self):
         return self.index
 
-index = IndexLoader('assignment/Document_Retrieval_Assignment_Files/index_nostoplist_nostemming.txt').getIndex()
+class Queries:
+    def __init__(self, queriesFile):
+        self.qStore = {}
+        termCountRE = re.compile('(\w+):(\d+)')
+        f = open(queriesFile, 'r')
+        for line in f:
+            qid = int(line.split(' ', 1)[0])
+            self.qStore[qid] = {}
+            for (term, count) in termCountRE.findall(line):
+                self.qStore[qid][term] = int(count)
 
-query = {'an': 1, 'articles': 1, 'computers': 1, 'deal': 1, 'exist': 1, 'for': 1, 'ibm': 1, 'operating': 1, 'sharing': 1, 'system': 2, 'time': 1, 'tss': 1, 'what': 1, 'which': 1, 'with': 1}
+    def getQuery(self, qid):
+        if qid in self.qStore:
+            return self.qStore[qid]
+        else:
+            print("*** ERROR: unknown query identifier (\"%s\") ***" % qid, file=sys.stderr)
+            if type(qid) == type(''):
+                print('WARNING: query identifiers should be of type: integer', file=sys.stderr)
+                print('         -- your query identifier is of type: string', file=sys.stderr)
+            print(' -- program exiting', file=sys.stderr)
+
+    def qids(self):
+        return sorted(self.qStore)
+PATH = 'assignment/Document_Retrieval_Assignment_Files/'
+index = IndexLoader(PATH+'index_withstoplist_withstemming.txt').getIndex()
+queries = Queries(PATH+'queries_withstoplist_withstemming.txt')
+#query = {'an': 1, 'articles': 1, 'computers': 1, 'deal': 1, 'exist': 1, 'for': 1, 'ibm': 1, 'operating': 1, 'sharing': 1, 'system': 2, 'time': 1, 'tss': 1, 'what': 1, 'which': 1, 'with': 1}
 
 class Retrieve:
     # Create new Retrieve object storing index and termWeighting scheme
@@ -66,6 +90,13 @@ class Retrieve:
         binary = 1 if docid in self.index[term] else 0
         return binary
 
+    def __getDocLength(self):
+        max_index = 0
+        for term in self.index:
+            present_term = max(self.index[term])
+            max_index = present_term if present_term > max_index else max_index
+        return max_index
+
     @__Viewer()
     def getDocMode_v1(self):
         doc_mode = dict()
@@ -78,15 +109,6 @@ class Retrieve:
                 mode += mode_item * mode_item
             doc_mode[docid] = math.sqrt(mode) #pow(mode,1/2)
         return doc_mode
-
-    # get the total number of documents
-    @__Viewer("The length of documents:")
-    def __getDocLength(self):
-        max_index = 0
-        for term in self.index:
-            present_term = max(self.index[term])
-            max_index = present_term if present_term > max_index else max_index
-        return max_index
 
     @__Viewer()
     def getDocMode_v2(self):
@@ -122,14 +144,12 @@ class Retrieve:
             doc_mode[docid] = math.sqrt(accu)
         return doc_mode
 
-    # Method performing retrieval for specified query
     @__Viewer()
-    def forQuery_v1(self, query):
+    def forQuery(self, query):
         candidate_term = query.keys() & self.index.keys()
         candidate_docid = set()
         for term in candidate_term:
             candidate_docid |= self.index[term].keys()
-        return range(10)
         score = dict()
         for docid in candidate_docid:
             qd = 0
@@ -145,23 +165,48 @@ class Retrieve:
         return results[:10]
 
     @__Viewer()
-    def forQuery(self, query):
+    def forQuery_v1(self, query):
+        candidate_term = query.keys() & self.index.keys()
+        candidate_docid = set()
+        for term in candidate_term:
+            candidate_docid |= self.index[term].keys()
+        score = dict()
+        for docid in candidate_docid:
+            qd = 0
+            for term in candidate_term:
+                q = query[term]
+                d = self.index[term].get(docid,0)
+                qd += q*d
+            dd = 0
+            mode = self.docMode[docid]
+            similarity = qd / mode
+            score[docid] = similarity
+        results = sorted(score, key = lambda k: score[k], reverse=True)
+        return results[:10]
+
+    @__Viewer()
+    def forQuery_v2(self, query):
         sellected_index = {k:v for k,v in self.index.items() if k in query}
         com_mode = dict()#.fromkeys(range(1,t3.docLength+1),0)
-        for term,docid_dict in sellected_index.items():
-            for docid,freq in docid_dict.items():
-                com_mode[docid] = com_mode.get(docid,0) + query[term] * freq
+        if self.termWeighting == 'tf':
+            for term,docid_dict in sellected_index.items():
+                for docid,freq in docid_dict.items():
+                    com_mode[docid] = com_mode.get(docid,0) + query[term] * freq
+        elif self.termWeighting == 'binary':
+            for term,docid_dict in sellected_index.items():
+                for docid,freq in docid_dict.items():
+                    com_mode[docid] = com_mode.get(docid,0) + 1
         for docid,accu in com_mode.items():
             com_mode[docid] = com_mode[docid] / self.docMode[docid]
         results = sorted(com_mode, key = lambda k: com_mode[k], reverse=True)
         return results[:10]
 
 # %%
-tw = ['binary','tf'][0]
-t1 = Retrieve(index = index,termWeighting = tw,version=1)
-t2 = Retrieve(index = index,termWeighting = tw,version=2)
-t3 = Retrieve(index = index,termWeighting = tw,version=3)
-check_dict(t1.docMode,t2.docMode)
-check_dict(t2.docMode,t3.docMode)
-
-t3.forQuery(query)
+retrieve = Retrieve(index,'tf',3)
+#check_dict(retrieve.mode,retrieve.docMode)
+for qid in queries.qids():
+    print(qid)
+    query = queries.getQuery(qid)
+    results = retrieve.forQuery_v2(query)
+    break
+results
