@@ -6,8 +6,9 @@ class Retrieve:
         self.index = index
         self.termWeighting = termWeighting
         self.docLength = self.__getDocLength()
+        if self.termWeighting == 'tfidf':
+            self.idf = {term:math.log10(self.docLength/len(docid_dict)) for term,docid_dict in self.index.items()}
         self.docMode = self.getDocMode()
-
     '''
     def check_dict(self,dict1,dict2):
         if len(dict1)!= len(dict2):
@@ -40,6 +41,11 @@ class Retrieve:
             for term,docid_dict in self.index.items():
                 for docid,freq in docid_dict.items():
                     doc_mode[docid] += 1
+        elif self.termWeighting == 'tfidf':
+            for term,docid_dict in self.index.items():
+                idf = self.idf[term]
+                for docid,freq in docid_dict.items():
+                    doc_mode[docid] += freq*idf*freq*idf
         # may don't need to do know
         # TODO: sqrt later
         for docid, accu in doc_mode.items():
@@ -70,6 +76,11 @@ class Retrieve:
             for term,docid_dict in sellected_index.items():
                 for docid,freq in docid_dict.items():
                     com_mode[docid] = com_mode.get(docid,0) + 1
+        elif self.termWeighting == 'tfidf':
+            for term,docid_dict in sellected_index.items():
+                idf = self.idf[term]
+                for docid,freq in docid_dict.items():
+                    com_mode[docid] = com_mode.get(docid,0) + query[term] * idf * freq * idf
         for docid,accu in com_mode.items():
             com_mode[docid] = com_mode[docid] / self.docMode[docid]
         results = sorted(com_mode, key = lambda k: com_mode[k], reverse=True)
