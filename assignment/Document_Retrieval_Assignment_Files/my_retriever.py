@@ -9,19 +9,6 @@ class Retrieve:
         if self.termWeighting == 'tfidf':
             self.idf = {term:math.log10(self.docLength/len(docid_dict)) for term,docid_dict in self.index.items()}
         self.docMode = self.getDocMode()
-    '''
-    def check_dict(self,dict1,dict2):
-        if len(dict1)!= len(dict2):
-            print("Length is Different")
-            return False
-        for key,value in dict1.items():
-            if abs(dict2[key]-value)>10**-4:
-                print("Value is Different\n")
-                print("Key:{},True:{},Get:{}".format(key,value,dict2[key]))
-                return False
-        print("The Same")
-        return True
-    '''
 
     # get the total number of documents
     def __getDocLength(self):
@@ -51,18 +38,6 @@ class Retrieve:
         for docid, accu in doc_mode.items():
             doc_mode[docid] = math.sqrt(accu)
         return doc_mode
-    '''
-    # only calculate the mode for tf mode
-    def VectorMode(self):
-        mode = dict()
-        for docid in range(1,self.__getDoclength()+1): # number of all documents
-            dd = 0 # set mode to 0
-            for term in self.index: # all the term appear in all documents
-                d = self.index[term].get(docid,0)  # get frequency of the term
-                dd += d*d
-            mode[docid] = pow(dd,1/2)
-        return mode
-    '''
 
     # Method performing retrieval for specified query
     def forQuery(self, query):
