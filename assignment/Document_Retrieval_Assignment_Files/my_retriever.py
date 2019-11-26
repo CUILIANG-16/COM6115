@@ -8,7 +8,7 @@ class Retrieve:
         self.docLength = self.__getDocLength()
         if self.termWeighting == 'tfidf':
             self.idf = {term:math.log10(self.docLength/len(docid_dict)) for term,docid_dict in self.index.items()}
-        self.docMode = self.getDocMode()
+        self.docMode = self.__getDocMode()
 
     # get the total number of documents
     def __getDocLength(self):
@@ -18,7 +18,7 @@ class Retrieve:
             max_index = present_term if present_term > max_index else max_index
         return max_index
 
-    def getDocMode(self):
+    def __getDocMode(self):
         doc_mode = dict().fromkeys(range(1,self.docLength+1),0)
         if self.termWeighting == 'tf':
             for term,docid_dict in self.index.items():
