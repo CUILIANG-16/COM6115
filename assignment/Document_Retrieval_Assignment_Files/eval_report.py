@@ -138,9 +138,9 @@ for bar in s_p:
     plt.text(bar.get_x()+0.05,text_y[i]+0.003,round(text_y[i],3),fontsize = 8)
     i += 1
 
-plt.title("Binart Evaluation Score",fontsize=16,fontweight='bold')
+plt.title("Binary Evaluation Score",fontsize=16,fontweight='bold')
 plt.legend(loc = 'upper right')
-plt.savefig(PATH + 'BinartEvaluationScore.png')
+plt.savefig(PATH + 'BinaryEvaluationScore.png')
 plt.show()
 
 # %% TF
