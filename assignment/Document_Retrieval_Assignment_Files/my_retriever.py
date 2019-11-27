@@ -11,7 +11,7 @@ class Retrieve:
         if self.termWeighting == 'tfidf':
             self.idf = {term: math.log10(
                 self.docLength / len(docid_dict)) for term, docid_dict in self.index.items()}
-        self.docMode = self.__getDocMode() # Compute the size of each document vector
+        self.docMode = self.__getDocSize() # Compute the size of each document vector
 
     # Compute the total number of documents in the collection
     def __getDocLength(self):
@@ -33,7 +33,7 @@ class Retrieve:
         return max_index
 
     # Compute the size of each document vector
-    def __getDocMode(self):
+    def __getDocSize(self):
         '''Compute the size of each document vector.
 
         Iterate through each item in the index and add the square of the frequency
@@ -56,7 +56,7 @@ class Retrieve:
              2: 6.046778468200997,
              3: 4.337707805638354,
              ...}
-             
+
         Raises:
             NameError: An error occurres when math package is not imported.
         '''
