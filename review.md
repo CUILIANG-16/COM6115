@@ -52,7 +52,7 @@
 > * Relation Extraction: 物品之间的关系，相机拍照片
 > * Synonym Match: 同义词
 
-## 4. Approaches of SA
+## 5. Approaches of SA
 The approaches can be brefly devided into 2 part:
 1. Lexicon-based
    * Binary
@@ -136,6 +136,39 @@ Build Corpus:
    - Remove stopwords
 2. Sentiment classifier with remaining segments
    - make emotion predictions, e.g. Naive Bayes
+### Naive Bayes classifier
+Estimate the probability of each class given a text.
+
+Bayes Rule:
+$$
+P(Y|X_1,\dots,X_n) = \frac{P(X_1,\dots,X_n|Y)P(Y)}{P(X_1,\dots,X_n)}
+$$
+> $P(Y)$: Prior belief (probability of hypothesis Y before seeing any data)
+
+Assume all features are independent:
+$$
+\begin{align*}
+P(X_1,\dots,X_n|Y) &= P(X_1|Y)\cdot P(X_2|Y) \dots P(X_n|Y)\cdot \\
+P(T|c_i)&\approx \prod_{j=1}^nP(t_j|c_i)
+\end{align*}
+$$
+> Evidence $P(X_1,\dots,X_n)$ can be disregarded, because it is constant
+
+**Examples:**
+
+![](img/training.jpg)
+![](img/testing.jpg)
+
+### Critical Summary of Naive Bayes classifier
+* Advantages
+  - simple and work well for not sparse data
+* Disadvantage
+  - assumption is almost never true
+  - only adjectives can be limiting
+  - consider negation
+
+## 6. Evaluation of SA system
+![](img/IMG_0361.jpg)
 
 # II. Information Retrieval
 # III. Natural Language Generation
